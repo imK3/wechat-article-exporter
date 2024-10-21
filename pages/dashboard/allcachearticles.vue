@@ -153,14 +153,18 @@ interface Article extends AppMsgEx {
 useHead({
     title: '数据导出 | 微信公众号文章导出'
 })
+//所有文章数据
+let data = await getArticlesCache(Date.now())
+
 
 // 已缓存的公众号信息
+
 const cachedAccountInfos = await getAllInfo()
 const sortedAccountInfos = computed(() => {
     cachedAccountInfos.sort((a, b) => {
         return a.articles > b.articles ? -1 : 1
     })
-    const info:Info = { fakeid: 'all', nickname: '全部', articles: 0,completed : true, count:1 }
+    const info:Info = { fakeid: 'all', nickname: '全部', articles: data.length ,completed : true, count:1 }
 
     return [info, ...cachedAccountInfos]
 
@@ -199,18 +203,19 @@ async function switchTableData(fakeid: string) {
 
     loading.value = true
     articles.length = 0
-    let data = await getArticlesCache(Date.now())
+    
     console.log(data)
     if (fakeid !== 'all') {
         data = await getArticleCache(fakeid, Date.now())
     } 
     deletedArticlesCount.value = data.filter(article => article.is_deleted).length
-    articles.push(...data.filter(article => !article.is_deleted).map(article => ({
+    articles.push(...data.filter(article => !article.is_deleted).sort((a, b) => b.update_time - a.update_time).map(article => ({
         ...article,
         checked: false,
         display: true,
         author_name: article.author_name || '--',
     })))
+
     await sleep(500)
     loading.value = false
 
