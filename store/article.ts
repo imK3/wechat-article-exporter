@@ -140,3 +140,35 @@ export async function getArticleCache(fakeid: string, create_time: number): Prom
         }
     })
 }
+/*
+* 读取缓存中的指定时间之前的历史文章
+* @param create_time 创建时间
+*/
+export async function getArticlesCache(create_time: number): Promise<AppMsgEx[]> {
+    const db = await openDatabase()
+    const articles: AppMsgEx[] = []
+ 
+    return new Promise((resolve, reject) => {
+        // 获取 article 表的索引，去掉对 fakeid 的过滤
+        const index = db.transaction('article').objectStore('article').index('fakeid_create_time')
+ 
+        // 只按 create_time 进行过滤，获取所有 create_time 小于指定时间的数据
+        const request = index.openCursor(null, 'prev') // null 表示没有范围，获取所有记录
+
+ 
+        request.onsuccess = (event) => {
+            const cursor = (event.target as IDBRequest<IDBCursorWithValue | null>).result
+            if (cursor) {
+                // 推入文章数据
+                articles.push(cursor.value)
+                cursor.continue()
+            } else {
+                // 获取完成后 resolve
+                resolve(articles)
+            }
+        }
+        request.onerror = (evt) => {
+            reject(evt)
+        }
+    })
+ }
