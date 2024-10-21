@@ -104,10 +104,12 @@ const loginAccount = useLoginAccount()
 const items = ref([
   {name: '文章获取', icon: Newspaper, href: '/dashboard/fetch'},
   {name: '数据导出', icon: Download, href: '/dashboard/download'},
+  {name:'所有缓存数据', icon: Settings, href: '/dashboard/allcachearticles'},
   {name: '合集下载', icon: Album, href: '/dashboard/album'},
   {name: '缓存分析', icon: ChartNoAxesCombined, href: '/dashboard/analytics'},
   {name: '代理使用额度', icon: Globe, href: '/dashboard/proxy'},
   {name: '设置', icon: Settings, href: '/dashboard/settings'},
+  
 ])
 
 const expire = loginAccount.value.expires
